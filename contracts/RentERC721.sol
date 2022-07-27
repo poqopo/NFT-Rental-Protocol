@@ -18,7 +18,7 @@ contract RentERC721 is Ownable{
         address collateral_token;
         uint256 maxrent_duration;
         uint256 collateral_amount;
-        uint256 daily_rent_fee;
+        uint256 rent_fee_per_block;
     }
     struct NFTinfo {
         Lendinfo lendinfo;
@@ -92,7 +92,7 @@ contract RentERC721 is Ownable{
             uint256 token_id,
             uint256 _maxrent_duration,
             uint256 _collateral_amount,
-            uint256 _daily_rent_fee
+            uint256 _rent_fee_per_block
             ) public notPaused notUpgrade {
         
         require(msg.sender == IERC721(collection_address).ownerOf(token_id), "You are not the owner");
@@ -103,11 +103,11 @@ contract RentERC721 is Ownable{
             collateral_token : _collateral_token,
             maxrent_duration : _maxrent_duration,
             collateral_amount : _collateral_amount,
-            daily_rent_fee : _daily_rent_fee
+            rent_fee_per_block : _rent_fee_per_block
         });
 
         IERC721(collection_address).safeTransferFrom(msg.sender, address(this), token_id);
-        emit NFTlisted(collection_address, _collateral_token, token_id, _maxrent_duration, _collateral_amount, _daily_rent_fee);
+        emit NFTlisted(collection_address, _collateral_token, token_id, _maxrent_duration, _collateral_amount, _rent_fee_per_block);
     }
 
     function cancellisted(address collection_address, uint256 token_id) public onlyLister(collection_address, token_id) notPaused {
@@ -128,7 +128,7 @@ contract RentERC721 is Ownable{
         emit NFTlistcancelled(collection_address, token_id);
     }   
 
-    enum PARAMETER { MAXRENT, PRICE, DAILYFEE }
+    enum PARAMETER { MAXRENT, PRICE, BLOCKFEE }
 
     function modifylist(address collection_address, uint256 token_id, PARAMETER[] memory _parameter, uint256[] memory _input) public onlyLister(collection_address, token_id) notPaused notUpgrade {
         for (uint256 i = 0; i < _parameter.length; i++) {
@@ -136,8 +136,8 @@ contract RentERC721 is Ownable{
                 nftinfo[collection_address][token_id].lendinfo.maxrent_duration = _input[i];
             } else if (_parameter[i] == PARAMETER.PRICE) { // 1
                 nftinfo[collection_address][token_id].lendinfo.collateral_amount = _input[i];
-            } else if (_parameter[i] == PARAMETER.DAILYFEE) { // 2
-                nftinfo[collection_address][token_id].lendinfo.daily_rent_fee = _input[i];
+            } else if (_parameter[i] == PARAMETER.BLOCKFEE) { // 2
+                nftinfo[collection_address][token_id].lendinfo.rent_fee_per_block = _input[i];
             }
         }
 
@@ -147,12 +147,12 @@ contract RentERC721 is Ownable{
     //rent 하기 전 collateral approve 해야함.
     function rent(address collection_address, uint256 token_id, uint256 _rent_duration) public notPaused  notUpgrade {
         require(nftinfo[collection_address][token_id].lendinfo.lender_address != address(0), "Not listed");
-        require(_rent_duration > 0, "You should rent more than 1day");
+        require(_rent_duration > 0, "You should rent more than 1 block");
         require(nftinfo[collection_address][token_id].rentinfo.rent_duration == 0, "Already rented");
         require(_rent_duration < nftinfo[collection_address][token_id].lendinfo.maxrent_duration, "too long NFT duration");
 
         Lendinfo memory lendinfo = nftinfo[collection_address][token_id].lendinfo;
-        uint256 total = lendinfo.daily_rent_fee * _rent_duration + lendinfo.collateral_amount;
+        uint256 total = lendinfo.rent_fee_per_block * _rent_duration + lendinfo.collateral_amount;
 
         nftinfo[collection_address][token_id].rentinfo = Rentinfo ({
             renter_address : msg.sender,
@@ -223,7 +223,7 @@ contract RentERC721 is Ownable{
         emit kicked(collection_address, token_id, nft.rentinfo.renter_address, nft.rentinfo.rented_block, msg.sender, block.number);
     }
 
-    event NFTlisted(address collection_address, address collateral_token, uint256 token_id, uint256 maxrent_duration, uint256 collateral_amount, uint256 daily_rent_fee);
+    event NFTlisted(address collection_address, address collateral_token, uint256 token_id, uint256 maxrent_duration, uint256 collateral_amount, uint256 rent_fee_per_block);
     event NFTlistcancelled(address collection_address, uint256 token_id);
     event NFTlistmodified(address collection_address, uint256 token_id, PARAMETER[] parameter, uint256[] input);
     event NFTrented(address collection_address, uint256 token_id, address renter_address, uint256 rent_duration, uint256 rented_block, uint256 total_amount);
