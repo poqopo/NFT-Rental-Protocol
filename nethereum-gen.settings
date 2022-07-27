@@ -1,0 +1,7 @@
+{
+    "projectName": "NFT rental project",
+    "namespace": "NFT rental project.Contracts",
+    "lang": 0,
+    "autoCodeGen": true,
+    "projectPath": "../"
+}
