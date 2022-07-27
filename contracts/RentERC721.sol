@@ -11,7 +11,7 @@ contract RentERC721 is Ownable{
         address renter_address;
         uint256 rent_duration;
         uint256 rented_block;
-        uint256 total_amount;
+        uint256 rentfee_amount;
     }
     struct Lendinfo {
         address lender_address;
@@ -28,13 +28,13 @@ contract RentERC721 is Ownable{
     mapping(address => mapping(uint256 => NFTinfo)) private nftinfo;
 
     address fee_collector;
-    uint256 platform_fee;
-    uint256 kick_incentive;
+    uint256 platform_fee = 10000;
+    uint256 kick_incentive = 10000;
     uint256 execution_delay = 2 days;
 
     uint256 fee_denominator = 1000000;
-    bool paused;
-    bool stopforupgrade;
+    bool paused = false;
+    bool stopforupgrade = false;
 
     /* ============ modifier ============*/
 
@@ -82,7 +82,6 @@ contract RentERC721 is Ownable{
 
     constructor() {
         fee_collector = msg.sender;
-        platform_fee = 1000;
     }
 
     //NFT 리스팅. 이전에 Approve 필요
@@ -146,19 +145,20 @@ contract RentERC721 is Ownable{
 
     //rent 하기 전 collateral approve 해야함.
     function rent(address collection_address, uint256 token_id, uint256 _rent_duration) public notPaused  notUpgrade {
-        require(nftinfo[collection_address][token_id].lendinfo.lender_address != address(0), "Not listed");
+        NFTinfo memory nft = nftinfo[collection_address][token_id];
+        require(nft.lendinfo.lender_address != address(0), "Not listed");
         require(_rent_duration > 0, "You should rent more than 1 block");
-        require(nftinfo[collection_address][token_id].rentinfo.rent_duration == 0, "Already rented");
-        require(_rent_duration < nftinfo[collection_address][token_id].lendinfo.maxrent_duration, "too long NFT duration");
+        require(nft.rentinfo.rent_duration == 0, "Already rented");
+        require(_rent_duration < nft.lendinfo.maxrent_duration, "too long NFT duration");
 
-        Lendinfo memory lendinfo = nftinfo[collection_address][token_id].lendinfo;
-        uint256 total = lendinfo.rent_fee_per_block * _rent_duration + lendinfo.collateral_amount;
+        uint256 rent_fee = nft.lendinfo.rent_fee_per_block * _rent_duration;
+        uint256 total = nft.lendinfo.collateral_amount + rent_fee;
 
         nftinfo[collection_address][token_id].rentinfo = Rentinfo ({
             renter_address : msg.sender,
             rent_duration : _rent_duration,
             rented_block : block.number,
-            total_amount : total
+            rentfee_amount : fee
         });
 
         IERC20(lendinfo.collateral_token).transferFrom(msg.sender, address(this), total);
@@ -167,17 +167,19 @@ contract RentERC721 is Ownable{
         emit NFTrented(collection_address, token_id, msg.sender, _rent_duration, block.number, total);
     }
 
+    //NFTapprove 필수
     function returnNFT(address collection_address, uint256 token_id) public notPaused {
         NFTinfo memory nft = nftinfo[collection_address][token_id];
         require(nft.rentinfo.renter_address != address(0), "Not listed");
         require(block.number - nft.rentinfo.rented_block <= nft.rentinfo.rent_duration, "Timeout.");
         require(msg.sender == nft.rentinfo.renter_address, "You are not renter");
 
-        uint256 fee_amount = nft.rentinfo.total_amount - nft.lendinfo.collateral_amount;
-        uint256 platformfee = fee_amount * platform_fee / fee_denominator;
-        fee_amount = fee_amount - platform_fee; 
+        uint256 platformfee = nft.rentinfo.rentfee_amount * platform_fee / fee_denominator;
+        uint256 fee_amount = nft.rentinfo.rentfee_amount - platformfee; 
 
         delete nftinfo[collection_address][token_id];
+
+        IERC721(collection_address).safeTransferFrom(msg.sender, nft.lendinfo.lender_address, token_id);
 
         IERC20(nft.lendinfo.collateral_token).transfer(msg.sender, nft.lendinfo.collateral_amount);
         IERC20(nft.lendinfo.collateral_token).transfer(nft.lendinfo.lender_address, fee_amount);
@@ -192,9 +194,8 @@ contract RentERC721 is Ownable{
         require(block.number - nft.rentinfo.rented_block > nft.rentinfo.rent_duration, "Still renting time.");
         require(msg.sender == nft.lendinfo.lender_address, "You are not holder");
 
-        uint256 total = nft.rentinfo.total_amount;
-        uint256 platformfee = total * platform_fee / fee_denominator;
-        total = total - platform_fee;
+        uint256 platformfee = nft.rentinfo.rentfee_amount * platform_fee / fee_denominator;
+        uint256 total = nft.lendinfo.collateral_amount + nft.rentinfo.rentfee_amount - platformfee;
 
         delete nftinfo[collection_address][token_id];
 
@@ -209,10 +210,9 @@ contract RentERC721 is Ownable{
         require(nft.rentinfo.renter_address != address(0), "Not listed");
         require((block.number - nft.rentinfo.rented_block) > (nft.rentinfo.rent_duration + execution_delay) , "You can't kick now.");
 
-        uint256 total = nft.rentinfo.total_amount;
-        uint256 platformfee = total * platform_fee / fee_denominator;
-        uint256 kickfee = total * kick_incentive / fee_denominator;
-        total = total - platform_fee - kickfee;
+        uint256 platformfee = nft.rentinfo.rentfee_amount * platform_fee / fee_denominator;
+        uint256 kickfee = nft.rentinfo.rentfee_amount * kick_incentive / fee_denominator;
+        uint256 total = nft.lendinfo.collateral_amount + nft.rentinfo.rentfee_amount - platformfee - kickfee;
 
         delete nftinfo[collection_address][token_id];
 
