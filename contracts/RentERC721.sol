@@ -35,8 +35,6 @@ contract RentERC721 is Ownable{
     uint256 fee_denominator = 1000000;
     bool paused;
     bool stopforupgrade;
-    address[] collateral_array;
-
 
     /* ============ modifier ============*/
 
@@ -70,7 +68,7 @@ contract RentERC721 is Ownable{
     }
 
     function set_execution_delay (uint256 _execution_delay) external onlyOwner {
-        execution_delay = _kick_incentive;
+        execution_delay = _execution_delay;
     }
 
     function togglepaused() external onlyOwner {
@@ -79,10 +77,6 @@ contract RentERC721 is Ownable{
 
     function togglesstopforupgrade() external onlyOwner {
         stopforupgrade = !stopforupgrade;
-    }
-
-    functino set_collateral(address new_collateral) external onlyOwner {
-        collateral_array.push(new_collateral);
     }
     
 
@@ -116,22 +110,22 @@ contract RentERC721 is Ownable{
         emit NFTlisted(collection_address, _collateral_token, token_id, _maxrent_duration, _collateral_amount, _daily_rent_fee);
     }
 
-    function canclelisted(address collection_address, uint256 token_id) public onlyLister(collection_address, token_id) notPaused {
+    function cancellisted(address collection_address, uint256 token_id) public onlyLister(collection_address, token_id) notPaused {
         require(nftinfo[collection_address][token_id].rentinfo.rented_block == 0, "already rented item!");
 
         delete nftinfo[collection_address][token_id].lendinfo;
         IERC721(collection_address).safeTransferFrom(address(this), msg.sender, token_id);
 
-        emit NFTlistcancled(collection_address, token_id);
+        emit NFTlistcancelled(collection_address, token_id);
     }
 
-    function emergencycancle (address collection_address, uint256 token_id) external onlyOwner {
+    function emergencycancel (address collection_address, uint256 token_id) external onlyOwner {
         require(nftinfo[collection_address][token_id].rentinfo.rented_block == 0, "already rented item!");
 
         delete nftinfo[collection_address][token_id].lendinfo;
         IERC721(collection_address).safeTransferFrom(address(this), nftinfo[collection_address][token_id].lendinfo.lender_address, token_id);
 
-        emit NFTlistcancled(collection_address, token_id);
+        emit NFTlistcancelled(collection_address, token_id);
     }   
 
     enum PARAMETER { MAXRENT, PRICE, DAILYFEE }
@@ -230,7 +224,7 @@ contract RentERC721 is Ownable{
     }
 
     event NFTlisted(address collection_address, address collateral_token, uint256 token_id, uint256 maxrent_duration, uint256 collateral_amount, uint256 daily_rent_fee);
-    event NFTlistcancled(address collection_address, uint256 token_id);
+    event NFTlistcancelled(address collection_address, uint256 token_id);
     event NFTlistmodified(address collection_address, uint256 token_id, PARAMETER[] parameter, uint256[] input);
     event NFTrented(address collection_address, uint256 token_id, address renter_address, uint256 rent_duration, uint256 rented_block, uint256 total_amount);
     event NFTreturned(address collection_address, uint256 token_id, uint256 rented_block);
