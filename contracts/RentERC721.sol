@@ -3,9 +3,10 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract RentERC721 is Ownable{
+contract RentERC721 is Ownable, ERC721Holder{
 
     struct Rentinfo {
         address renter_address;
@@ -25,16 +26,16 @@ contract RentERC721 is Ownable{
         Rentinfo rentinfo;
     }
 
-    mapping(address => mapping(uint256 => NFTinfo)) private nftinfo;
+    mapping(address => mapping(uint256 => NFTinfo)) public nftinfo;
 
-    address fee_collector;
-    uint256 platform_fee = 10000;
-    uint256 kick_incentive = 10000;
-    uint256 execution_delay = 2 days;
+    address public fee_collector;
+    uint256 public platform_fee = 10000;
+    uint256 public kick_incentive = 10000;
+    uint256 public execution_delay = 2 days;
 
-    uint256 fee_denominator = 1000000;
-    bool paused = false;
-    bool stopforupgrade = false;
+    uint256 public constant fee_denominator = 1000000;
+    bool public paused = false;
+    bool public stopforupgrade = false;
 
     /* ============ modifier ============*/
 
@@ -149,7 +150,7 @@ contract RentERC721 is Ownable{
         require(nft.lendinfo.lender_address != address(0), "Not listed");
         require(_rent_duration > 0, "You should rent more than 1 block");
         require(nft.rentinfo.rent_duration == 0, "Already rented");
-        require(_rent_duration < nft.lendinfo.maxrent_duration, "too long NFT duration");
+        require(_rent_duration <= nft.lendinfo.maxrent_duration, "too long NFT duration");
 
         uint256 rent_fee = nft.lendinfo.rent_fee_per_block * _rent_duration;
         uint256 total = nft.lendinfo.collateral_amount + rent_fee;
@@ -158,10 +159,10 @@ contract RentERC721 is Ownable{
             renter_address : msg.sender,
             rent_duration : _rent_duration,
             rented_block : block.number,
-            rentfee_amount : fee
+            rentfee_amount : rent_fee
         });
 
-        IERC20(lendinfo.collateral_token).transferFrom(msg.sender, address(this), total);
+        IERC20(nft.lendinfo.collateral_token).transferFrom(msg.sender, address(this), total);
         IERC721(collection_address).safeTransferFrom(address(this), msg.sender, token_id);
 
         emit NFTrented(collection_address, token_id, msg.sender, _rent_duration, block.number, total);
