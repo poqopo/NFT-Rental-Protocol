@@ -42,6 +42,15 @@ const main = async () => {
     // await rentercontract.modifylist(mockERC721.address, 0, [0, 1, 2], [50000, 10000, 100])
     // await rentercontract.cancellisted(mockERC721.address, 0)
 
+    /* =============  List but emergency cancle start ============ */   
+
+    // Approve NFT to rentercontract
+    // await mockERC721.approve(rentercontract.address, 0)
+
+    // await rentercontract.listNFT(mockERC721.address, mockERC20.address, 0, max_rent, collateral, rent_block_fee)
+    // await rentercontract.emergencycancel(mockERC721.address, 0)
+
+
     /* =============  rent and return Start ============ */
 
     // await mockERC20.approve(rentercontract.address, 1e7)

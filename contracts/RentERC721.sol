@@ -110,7 +110,7 @@ contract RentERC721 is Ownable, ERC721Holder{
         emit NFTlisted(collection_address, _collateral_token, token_id, _maxrent_duration, _collateral_amount, _rent_fee_per_block);
     }
 
-    function cancellisted(address collection_address, uint256 token_id) public onlyLister(collection_address, token_id) notPaused {
+    function cancellist(address collection_address, uint256 token_id) public onlyLister(collection_address, token_id) notPaused {
         require(nftinfo[collection_address][token_id].rentinfo.rented_block == 0, "already rented item!");
 
         delete nftinfo[collection_address][token_id].lendinfo;
@@ -122,8 +122,8 @@ contract RentERC721 is Ownable, ERC721Holder{
     function emergencycancel (address collection_address, uint256 token_id) external onlyOwner {
         require(nftinfo[collection_address][token_id].rentinfo.rented_block == 0, "already rented item!");
 
-        delete nftinfo[collection_address][token_id].lendinfo;
         IERC721(collection_address).safeTransferFrom(address(this), nftinfo[collection_address][token_id].lendinfo.lender_address, token_id);
+        delete nftinfo[collection_address][token_id].lendinfo;
 
         emit NFTlistcancelled(collection_address, token_id);
     }   
