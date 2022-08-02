@@ -171,7 +171,7 @@ contract RentERC721 is Ownable, ERC721Holder{
     //NFTapprove 필수
     function returnNFT(address collection_address, uint256 token_id) public notPaused {
         NFTinfo memory nft = nftinfo[collection_address][token_id];
-        require(nft.rentinfo.renter_address != address(0), "Not listed");
+        require(nft.rentinfo.renter_address != address(0), "Not rented");
         require(block.number - nft.rentinfo.rented_block <= nft.rentinfo.rent_duration, "Timeout.");
         require(msg.sender == nft.rentinfo.renter_address, "You are not renter");
 
@@ -191,7 +191,7 @@ contract RentERC721 is Ownable, ERC721Holder{
 
     function withdrawcollateral (address collection_address, uint256 token_id) public notPaused {
         NFTinfo memory nft = nftinfo[collection_address][token_id];
-        require(nft.rentinfo.renter_address != address(0), "Not listed");
+        require(nft.rentinfo.renter_address != address(0), "Not rented");
         require(block.number - nft.rentinfo.rented_block > nft.rentinfo.rent_duration, "Still renting time.");
         require(msg.sender == nft.lendinfo.lender_address, "You are not holder");
 
@@ -208,7 +208,7 @@ contract RentERC721 is Ownable, ERC721Holder{
 
     function kick (address collection_address, uint256 token_id) public notPaused {
         NFTinfo memory nft = nftinfo[collection_address][token_id];
-        require(nft.rentinfo.renter_address != address(0), "Not listed");
+        require(nft.rentinfo.renter_address != address(0), "Not rented");
         require((block.number - nft.rentinfo.rented_block) > (nft.rentinfo.rent_duration + execution_delay) , "You can't kick now.");
 
         uint256 platformfee = nft.rentinfo.rentfee_amount * platform_fee / fee_denominator;

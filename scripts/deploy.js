@@ -12,7 +12,7 @@ const main = async () => {
 
     RenterFactory = await ethers.getContractFactory("RentERC721");
     // let rentercontract = await RenterFactory.deploy();
-    const rentercontract = await RenterFactory.attach("0xd066619E0e68172f403893CeDeb146a7f793a2f8");
+    const rentercontract = await RenterFactory.attach("0x77A625ED63240c514b4fBBC9A2Bae971f4C58942");
     console.log("rentercontract address is:", await rentercontract.address);
 
     MERC721Factory = await ethers.getContractFactory("MyToken721");
@@ -36,7 +36,7 @@ const main = async () => {
     /* =============  List and Cancle start ============ */
 
     // Approve NFT to rentercontract
-    // await mockERC721.approve(rentercontract.address, 0)
+    // await mockERC721.approve(rentercontract.address, 2)
 
     // await rentercontract.listNFT(mockERC721.address, mockERC20.address, 0, max_rent, collateral, rent_block_fee)
     // await rentercontract.modifylist(mockERC721.address, 0, [0, 1, 2], [50000, 10000, 100])
