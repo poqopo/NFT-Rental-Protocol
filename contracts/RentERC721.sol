@@ -107,7 +107,7 @@ contract RentERC721 is Ownable, ERC721Holder{
         });
 
         IERC721(collection_address).safeTransferFrom(msg.sender, address(this), token_id);
-        emit NFTlisted(collection_address, _collateral_token, token_id, _maxrent_duration, _collateral_amount, _rent_fee_per_block);
+        emit NFTlist(msg.sender, collection_address, token_id);
     }
 
     function cancellist(address collection_address, uint256 token_id) public onlyLister(collection_address, token_id) notPaused {
@@ -116,7 +116,7 @@ contract RentERC721 is Ownable, ERC721Holder{
         delete nftinfo[collection_address][token_id].lendinfo;
         IERC721(collection_address).safeTransferFrom(address(this), msg.sender, token_id);
 
-        emit NFTlistcancelled(collection_address, token_id);
+        emit NFTlistcancel(collection_address, token_id);
     }
 
     function emergencycancel (address collection_address, uint256 token_id) external onlyOwner {
@@ -125,7 +125,7 @@ contract RentERC721 is Ownable, ERC721Holder{
         IERC721(collection_address).safeTransferFrom(address(this), nftinfo[collection_address][token_id].lendinfo.lender_address, token_id);
         delete nftinfo[collection_address][token_id].lendinfo;
 
-        emit NFTlistcancelled(collection_address, token_id);
+        emit NFTlistcancel(collection_address, token_id);
     }   
 
     enum PARAMETER { MAXRENT, PRICE, BLOCKFEE }
@@ -165,7 +165,7 @@ contract RentERC721 is Ownable, ERC721Holder{
         IERC20(nft.lendinfo.collateral_token).transferFrom(msg.sender, address(this), total);
         IERC721(collection_address).safeTransferFrom(address(this), msg.sender, token_id);
 
-        emit NFTrented(collection_address, token_id, msg.sender, _rent_duration, block.number, total);
+        emit NFTrented(msg.sender, collection_address, token_id);
     }
 
     //NFTapprove 필수
@@ -186,7 +186,7 @@ contract RentERC721 is Ownable, ERC721Holder{
         IERC20(nft.lendinfo.collateral_token).transfer(nft.lendinfo.lender_address, fee_amount);
         IERC20(nft.lendinfo.collateral_token).transfer(fee_collector, platformfee);
 
-        emit NFTreturned(collection_address, token_id, nft.rentinfo.rented_block);
+        emit NFTreturned(msg.sender, collection_address, token_id);
     }
 
     function withdrawcollateral (address collection_address, uint256 token_id) public notPaused {
@@ -203,7 +203,7 @@ contract RentERC721 is Ownable, ERC721Holder{
         IERC20(nft.lendinfo.collateral_token).transfer(msg.sender, total);
         IERC20(nft.lendinfo.collateral_token).transfer(fee_collector, platformfee);
         
-        emit Colletralwithdrwed(collection_address, token_id, nft.rentinfo.rented_block);
+        emit Collateralwithdraw(msg.sender, collection_address, token_id);
     }
 
     function kick (address collection_address, uint256 token_id) public notPaused {
@@ -221,15 +221,15 @@ contract RentERC721 is Ownable, ERC721Holder{
         IERC20(nft.lendinfo.collateral_token).transfer(nft.lendinfo.lender_address, total);
         IERC20(nft.lendinfo.collateral_token).transfer(fee_collector, platformfee);
 
-        emit kicked(collection_address, token_id, nft.rentinfo.renter_address, nft.rentinfo.rented_block, msg.sender, block.number);
+        emit NFTkicked(msg.sender, collection_address, token_id);
     }
 
-    event NFTlisted(address collection_address, address collateral_token, uint256 token_id, uint256 maxrent_duration, uint256 collateral_amount, uint256 rent_fee_per_block);
-    event NFTlistcancelled(address collection_address, uint256 token_id);
+    event NFTlist(address holder_address, address collection_address, uint256 token_id);
+    event NFTlistcancel(address collection_address, uint256 token_id);
     event NFTlistmodified(address collection_address, uint256 token_id, PARAMETER[] parameter, uint256[] input);
-    event NFTrented(address collection_address, uint256 token_id, address renter_address, uint256 rent_duration, uint256 rented_block, uint256 total_amount);
-    event NFTreturned(address collection_address, uint256 token_id, uint256 rented_block);
-    event Colletralwithdrwed(address collection_address, uint256 token_id, uint256 rented_block);
-    event kicked(address collection_address,uint256 token_id,address renter_address , uint256 rented_block , address kicker_address, uint256 kick_date);
+    event NFTrented(address renter_address, address collection_address, uint256 token_id);
+    event NFTreturned(address renter_address, address collection_address, uint256 token_id);
+    event Collateralwithdraw(address lender_address, address collection_address, uint256 token_id);
+    event NFTkicked(address from_address, address collection_address, uint256 token_id);
 
 }

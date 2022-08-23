@@ -12,7 +12,7 @@ const main = async () => {
 
     RenterFactory = await ethers.getContractFactory("RentERC721");
     // let rentercontract = await RenterFactory.deploy();
-    const rentercontract = await RenterFactory.attach("0x77A625ED63240c514b4fBBC9A2Bae971f4C58942");
+    const rentercontract = await RenterFactory.attach("0x337e50BE30159688ECA2B4D41a2821Cf27862C33");
     console.log("rentercontract address is:", await rentercontract.address);
 
     MERC721Factory = await ethers.getContractFactory("MyToken721");
@@ -38,9 +38,18 @@ const main = async () => {
     // Approve NFT to rentercontract
     // await mockERC721.approve(rentercontract.address, 2)
 
-    // await rentercontract.listNFT(mockERC721.address, mockERC20.address, 0, max_rent, collateral, rent_block_fee)
+    // setInterval(async () => {
+    //     await mockERC721.approve(rentercontract.address, 2)
+    //     setTimeout(() => {}, "5000")
+    //     await rentercontract.listNFT(mockERC721.address, mockERC20.address, 2, max_rent, collateral, rent_block_fee)
+    //     setTimeout(() => {}, "5000")
+    //     await rentercontract.cancellist(mockERC721.address, 2)
+    // }, "30000");
+
+
+    await rentercontract.listNFT(mockERC721.address, mockERC20.address, 2, max_rent, collateral, rent_block_fee)
     // await rentercontract.modifylist(mockERC721.address, 0, [0, 1, 2], [50000, 10000, 100])
-    // await rentercontract.cancellisted(mockERC721.address, 0)
+    // await rentercontract.cancellist(mockERC721.address, 2)
 
     /* =============  List but emergency cancle start ============ */   
 
@@ -99,15 +108,16 @@ const main = async () => {
 
 }
 
+main()
 
-const runMain = async () => {
-    try {
-        await main();
-        process.exit(0);
-    } catch (error) {
-        console.log(error);
-        process.exit(1);
-    }
-};
+// const runMain = async () => {
+//     try {
+//         await main();
+//         process.exit(0);
+//     } catch (error) {
+//         console.log(error);
+//         process.exit(1);
+//     }
+// };
 
-runMain();
+// runMain();
