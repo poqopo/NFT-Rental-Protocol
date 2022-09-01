@@ -30,20 +30,20 @@ const main = async () => {
   );
   console.log("mockERC20 address is:", await mockERC20.address);
 
-  // setInterval(async () => {
-  //   if ((await mockERC721.ownerOf(5)).toString() !== lender)  {
-  //     await rentercontract.cancellist(mockERC721.address, 5);
-  //     console.log("Canceled!")
-  //   }
-  //   else if ((await mockERC721.getApproved(5)).toString() !== rentercontract.address) {
-  //     await mockERC721.approve(rentercontract.address, 5);
-  //     console.log("Approved!")
-  //   }
-  //   else {
-  //     await rentercontract.listNFT(mockERC721.address, mockERC20.address, 5, max_rent, Math.floor(Math.random() * 100), rent_block_fee);
-  //     console.log("Listed!")
-  //   }
-  // }, "5000")
+  setInterval(async () => {
+    if ((await mockERC721.ownerOf(5)).toString() !== lender)  {
+      await rentercontract.cancellist(mockERC721.address, 5);
+      console.log("Canceled!")
+    }
+    else if ((await mockERC721.getApproved(5)).toString() !== rentercontract.address) {
+      await mockERC721.approve(rentercontract.address, 5);
+      console.log("Approved!")
+    }
+    else {
+      await rentercontract.listNFT(mockERC721.address, mockERC20.address, 5, max_rent, Math.floor(Math.random() * 100), rent_block_fee);
+      console.log("Listed!")
+    }
+  }, "5000")
 
   // setInterval(async () => {  
   //     await rentercontract.modifylist(mockERC721.address, 5,[0, 1, 2], [Math.floor(Math.random() * 100), Math.floor(Math.random() * 1000), Math.floor(Math.random() * 1000)]);
