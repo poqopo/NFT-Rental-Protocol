@@ -5,6 +5,11 @@
       "address": "0x935b177AE396eDD723Fee35f5Ccda3F45B88a984",
       "txHash": "0x334837cda985defd0d46e1ef9234944a06bb9797fcf9129b35231adb9601771f",
       "kind": "uups"
+    },
+    {
+      "address": "0x0CfeB3608004563A794637A2acE709ae272bDcA8",
+      "txHash": "0x8d4775d953067e15f44d61a2a2cdc7c0df52859b8f7bb373b71c4c75e95c3d24",
+      "kind": "uups"
     }
   ],
   "impls": {
@@ -196,6 +201,224 @@
           "t_bool": {
             "label": "bool",
             "numberOfBytes": "1"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    },
+    "d031e7bb43fb2b7f649b5e512342bd3becd69ab7682efb7b6b1c961609638f4a": {
+      "address": "0x3581f9CD4F757068918A862a198cCbDB6A471320",
+      "txHash": "0xc64a006696ea9b8177449c0ea9780273bb464ddc091213725fbe15e7da4dbdf0",
+      "layout": {
+        "solcVersion": "0.8.10",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:62",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:67"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ERC1967UpgradeUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\ERC1967\\ERC1967UpgradeUpgradeable.sol:211"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "UUPSUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\UUPSUpgradeable.sol:107"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "151",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "152",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "operator",
+            "offset": 0,
+            "slot": "201",
+            "type": "t_address",
+            "contract": "RentERC721",
+            "src": "contracts\\RentERC721.sol:23"
+          },
+          {
+            "label": "fee_collector",
+            "offset": 0,
+            "slot": "202",
+            "type": "t_address",
+            "contract": "RentERC721",
+            "src": "contracts\\RentERC721.sol:24"
+          },
+          {
+            "label": "platform_fee",
+            "offset": 0,
+            "slot": "203",
+            "type": "t_uint256",
+            "contract": "RentERC721",
+            "src": "contracts\\RentERC721.sol:25"
+          },
+          {
+            "label": "kick_incentive",
+            "offset": 0,
+            "slot": "204",
+            "type": "t_uint256",
+            "contract": "RentERC721",
+            "src": "contracts\\RentERC721.sol:26"
+          },
+          {
+            "label": "execution_delay",
+            "offset": 0,
+            "slot": "205",
+            "type": "t_uint256",
+            "contract": "RentERC721",
+            "src": "contracts\\RentERC721.sol:27"
+          },
+          {
+            "label": "fee_denominator",
+            "offset": 0,
+            "slot": "206",
+            "type": "t_uint256",
+            "contract": "RentERC721",
+            "src": "contracts\\RentERC721.sol:28"
+          },
+          {
+            "label": "paused",
+            "offset": 0,
+            "slot": "207",
+            "type": "t_bool",
+            "contract": "RentERC721",
+            "src": "contracts\\RentERC721.sol:29"
+          },
+          {
+            "label": "rentinfo",
+            "offset": 0,
+            "slot": "208",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(Rentinfo)1447_storage))",
+            "contract": "RentERC721",
+            "src": "contracts\\RentERC721.sol:31"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_address,t_mapping(t_uint256,t_struct(Rentinfo)1447_storage))": {
+            "label": "mapping(address => mapping(uint256 => struct RentERC721.Rentinfo))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(Rentinfo)1447_storage)": {
+            "label": "mapping(uint256 => struct RentERC721.Rentinfo)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(Rentinfo)1447_storage": {
+            "label": "struct RentERC721.Rentinfo",
+            "members": [
+              {
+                "label": "lender_address",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "collateral_token",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "maxrent_duration",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "collateral_amount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "rent_fee_per_block",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "renter_address",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "5"
+              },
+              {
+                "label": "rent_duration",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "6"
+              },
+              {
+                "label": "rent_block",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "7"
+              }
+            ],
+            "numberOfBytes": "256"
           },
           "t_uint256": {
             "label": "uint256",

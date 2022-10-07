@@ -36,7 +36,7 @@ module.exports = {
       chainId: 8217,
       gas: 20000000,
       gasPrice: 250000000000,
-      accounts: [process.env.PRIVATE_KEY],
+      accounts: [process.env.PRIVATE_KEY1, process.env.PRIVATE_KEY2, process.env.PRIVATE_KEY3],
       live: true,
       saveDeployments: true,
       tags: ["mainnet"],
@@ -44,7 +44,7 @@ module.exports = {
     baobab: {
       url: "https://kaikas.baobab.klaytn.net:8651",
       chainId: 1001,
-      accounts: [process.env.PRIVATE_KEY],
+      accounts: [process.env.PRIVATE_KEY1, process.env.PRIVATE_KEY2, process.env.PRIVATE_KEY3],
       gas: 20000000,
       gasPrice: 250000000000,
       live: true,
@@ -55,9 +55,5 @@ module.exports = {
       url: "http://localhost:8555",
     },
   },
-  namedAccounts: {
-    deployer: {
-      default: 0,
-    },
-  },
+
 };

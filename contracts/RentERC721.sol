@@ -22,11 +22,11 @@ contract RentERC721 is Initializable, UUPSUpgradeable, OwnableUpgradeable {
 
     address public operator;
     address public fee_collector;
-    uint256 public platform_fee = 25000;
-    uint256 public kick_incentive = 10000;
-    uint256 public execution_delay = 2 days;
-    uint256 public constant fee_denominator = 1e6;
-    bool public paused = false;
+    uint256 public platform_fee;
+    uint256 public kick_incentive;
+    uint256 public execution_delay;
+    uint256 public fee_denominator;
+    bool public paused;
 
     mapping(address => mapping(uint256 => Rentinfo)) public rentinfo;
 
@@ -34,6 +34,11 @@ contract RentERC721 is Initializable, UUPSUpgradeable, OwnableUpgradeable {
 
     function initialize(address _operator) public initializer {
        operator = _operator;
+       platform_fee = 25000;
+       kick_incentive = 10000;
+       execution_delay = 2 days;
+       fee_denominator = 1e6;
+       paused = false;
        __Ownable_init();
     }
 

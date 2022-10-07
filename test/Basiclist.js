@@ -11,9 +11,10 @@ const {
         const [owner, lender, renter, other] = await ethers.getSigners();
     
         const Rent = await ethers.getContractFactory("RentERC721");
-        const rent = await Rent.deploy();
+        let rent = await upgrades.deployProxy(Rent, [owner.address], {
+            initializer: "initialize",
+        });
         await rent.deployed();
-        await rent.initialize(owner.address)
         await rent.setFeecollector(owner.address)
         
         const NFT = await ethers.getContractFactory("MyToken721");
@@ -248,7 +249,7 @@ const {
             await rent.setPaused(true)
             await chai.expect(rent.connect(renter).rent(nft.address, 0, 50)).to.be.revertedWith(
                 "system paused"
-              );
+            );
         })
 
         it('cannot rent more than max rent', async function () {
@@ -684,6 +685,174 @@ const {
             chai.expect((await token.balanceOf(rent.address))).to.equal('0')
 
         })
+    })
+
+    describe("Upgrade" , function() {
+        it('can Upgrade', async function () {
+            const { rent, nft, lender, renter, token } = await loadFixture(deployRentFixture);
+            const RentV2 = await ethers.getContractFactory("RentERC721V2");
+            console.log("Upgrading Rent...");
+            const rent2 = await upgrades.upgradeProxy(rent.address, RentV2);
+            await chai.expect(await rent2.rentVersion()).to.equal(2)      
+            console.log("Rent contract upgraded successfully");
+        })
+
+        it('Can store List info', async function () {
+            const { rent, nft, lender, owner } = await loadFixture(deployRentFixture);
+
+            await nft.connect(lender).safeMint()
+            await chai.expect(rent.connect(lender).NFTlist(nft.address, 0, owner.address, 10, 10, 10)).not.to.be.reverted
+
+            const RentV2 = await ethers.getContractFactory("RentERC721V2");
+            const rent2 = await upgrades.upgradeProxy(rent.address, RentV2);
+            await chai.expect(await rent2.rentVersion()).to.equal(2)      
+
+            const info = await rent2.viewRentinfo(nft.address, 0)
+            await chai.expect(info.collateral_token).to.equal(owner.address)
+        })
+
+        it('Can Rent with V1 List', async function () {
+            const { rent, nft, lender, token, renter } = await loadFixture(deployRentFixture);
+
+            // NFT mint & approve
+            await nft.connect(lender).safeMint()
+            await rent.connect(lender).NFTlist(nft.address, 0, token.address, 1000, 10, 1)
+            await nft.setApprovalForAll(rent.address, true)
+            // Token mint & approve
+            await token.connect(renter).mint(renter.address, 10000)
+            await token.connect(renter).approve(rent.address, 1e6)  
+
+            
+            const RentV2 = await ethers.getContractFactory("RentERC721V2");
+            const rent2 = await upgrades.upgradeProxy(rent.address, RentV2);
+            await chai.expect(await rent2.rentVersion()).to.equal(2)
+
+            await chai.expect(rent2.connect(renter).rent(nft.address, 0, 50)).not.to.be.reverted
+        })
+
+        it('Can Kick with V1 Rent', async function () {
+            const { rent, nft, lender, owner, other, token, renter } = await loadFixture(deployRentFixture);
+
+            await nft.connect(lender).safeMint()
+            await rent.connect(lender).NFTlist(nft.address, 0, token.address, 1000, 500, 10)
+            await nft.setApprovalForAll(rent.address, true)
+            // Token mint & approve
+            await token.connect(renter).mint(renter.address, 10000)
+            await token.connect(renter).approve(rent.address, 1e6)
+            await rent.connect(renter).rent(nft.address, 0, 1)
+            await rent.connect(owner).setExecutiondelay(1)
+
+            const RentV2 = await ethers.getContractFactory("RentERC721V2");
+            const rent2 = await upgrades.upgradeProxy(rent.address, RentV2);
+            await chai.expect(await rent2.rentVersion()).to.equal(2)
+
+            await chai.expect(rent2.connect(other).kick(nft.address, 0)).not.to.be.reverted
+
+        })
+
+        it('Should Kick Work', async function () {
+            const { rent, nft, token, lender, renter, owner, other } = await loadFixture(deployRentFixture);
+            // NFT mint & approve
+            await nft.connect(lender).safeMint()
+            await rent.connect(lender).NFTlist(nft.address, 0, token.address, 1000, 5000, 5000)
+            await nft.setApprovalForAll(rent.address, true)
+            // Token mint & approve
+            await token.connect(renter).mint(renter.address, 10000)
+            await token.connect(renter).approve(rent.address, 1e6)
+
+            await rent.connect(renter).rent(nft.address, 0, 1)
+            await nft.connect(renter).setApprovalForAll(rent.address, true)
+
+
+            const RentV2 = await ethers.getContractFactory("RentERC721V2");
+            const rent2 = await upgrades.upgradeProxy(rent.address, RentV2);
+            await chai.expect(await rent2.rentVersion()).to.equal(2)
+            await rent2.connect(owner).setExecutiondelay(1)
+
+            await rent2.connect(other).kick(nft.address, 0)
+
+            chai.expect((await token.balanceOf(lender.address))).to.equal('9825')
+            chai.expect((await token.balanceOf(renter.address))).to.equal('0')
+            chai.expect((await token.balanceOf(other.address))).to.equal('50')
+            chai.expect((await token.balanceOf(owner.address))).to.equal('125')
+            chai.expect((await token.balanceOf(rent.address))).to.equal('0')
+
+        })
+
+        it('Should Withdraw Work', async function () {
+            const { rent, nft, token, lender, renter, owner } = await loadFixture(deployRentFixture);
+            // NFT mint & approve
+            await nft.connect(lender).safeMint()
+            await rent.connect(lender).NFTlist(nft.address, 0, token.address, 1000, 5000, 5000)
+            await nft.setApprovalForAll(rent.address, true)
+            // Token mint & approve
+            await token.connect(renter).mint(renter.address, 10000)
+            await token.connect(renter).approve(rent.address, 1e6)
+
+            await rent.connect(renter).rent(nft.address, 0, 1)
+            await nft.connect(renter).setApprovalForAll(rent.address, true)
+
+            const RentV2 = await ethers.getContractFactory("RentERC721V2");
+            const rent2 = await upgrades.upgradeProxy(rent.address, RentV2);
+            await chai.expect(await rent2.rentVersion()).to.equal(2)
+
+            await rent2.connect(lender).withdrawCollateral(nft.address, 0)
+
+            chai.expect((await token.balanceOf(lender.address))).to.equal('9875')
+            chai.expect((await token.balanceOf(renter.address))).to.equal('0')
+            chai.expect((await token.balanceOf(owner.address))).to.equal('125')
+            chai.expect((await token.balanceOf(rent.address))).to.equal('0')
+
+        })
+
+        it('Should return work', async function () {
+            const { rent, nft, token, lender, renter, owner } = await loadFixture(deployRentFixture);
+            // NFT mint & approve
+            await nft.connect(lender).safeMint()
+            await rent.connect(lender).NFTlist(nft.address, 0, token.address, 1000, 5000, 10)
+            await nft.setApprovalForAll(rent.address, true)
+            // Token mint & approve
+            await token.connect(renter).mint(renter.address, 10000)
+            await token.connect(renter).approve(rent.address, 1e6)
+
+            await rent.connect(renter).rent(nft.address, 0, 500)
+            await nft.connect(renter).setApprovalForAll(rent.address, true)
+
+            const RentV2 = await ethers.getContractFactory("RentERC721V2");
+            const rent2 = await upgrades.upgradeProxy(rent.address, RentV2);
+            await chai.expect(await rent2.rentVersion()).to.equal(2)
+
+            await rent2.connect(renter).returnNFT(nft.address, 0)
+
+            chai.expect((await token.balanceOf(lender.address))).to.equal('4875')
+            chai.expect((await token.balanceOf(renter.address))).to.equal('5000')
+            chai.expect((await token.balanceOf(owner.address))).to.equal('125')
+            chai.expect((await token.balanceOf(rent.address))).to.equal('0')
+
+            chai.expect((await nft.ownerOf(0))).to.equal(lender.address)
+
+        })
+
+        it('Should rent work', async function () {
+            const { rent, nft, token, lender, renter } = await loadFixture(deployRentFixture);
+            // NFT mint & approve
+            await nft.connect(lender).safeMint()
+            await rent.connect(lender).NFTlist(nft.address, 0, token.address, 1000, 10, 1)
+            await nft.setApprovalForAll(rent.address, true)
+            // Token mint & approve
+            await token.connect(renter).mint(renter.address, 10000)
+            await token.connect(renter).approve(rent.address, 1e6)
+
+            const RentV2 = await ethers.getContractFactory("RentERC721V2");
+            const rent2 = await upgrades.upgradeProxy(rent.address, RentV2);
+            await chai.expect(await rent2.rentVersion()).to.equal(2)
+
+            await rent2.connect(renter).rent(nft.address, 0, 50)
+            chai.expect((await token.balanceOf(rent.address))).to.equal('60')
+            chai.expect((await nft.ownerOf(0))).to.equal(renter.address)
+
+        })
+
     })
 
 
