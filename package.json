@@ -9,6 +9,8 @@
   },
   "dependencies": {
     "@nomicfoundation/hardhat-network-helpers": "^1.0.6",
+    "@openzeppelin/buidler-upgrades": "^1.2.2",
+    "@openzeppelin/contracts": "^4.7.3",
     "chai": "^4.3.6",
     "ethereum-waffle": "^3.4.4"
   }
