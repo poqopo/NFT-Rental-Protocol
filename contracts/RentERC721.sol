@@ -147,11 +147,11 @@ contract RentERC721 is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         require(rentinfo[collection_address][token_id].rent_block == 0, "already rented item!");
         if (_parameter == PARAMETER.COLLAT) { // 0
             rentinfo[collection_address][token_id].collateral_token = address(uint160(_input));
-        } else if (_parameter == PARAMETER.MAXRENT) { // 0
+        } else if (_parameter == PARAMETER.MAXRENT) { // 1
             rentinfo[collection_address][token_id].maxrent_duration = _input;
-        } else if (_parameter == PARAMETER.PRICE) { // 1
+        } else if (_parameter == PARAMETER.PRICE) { // 2
             rentinfo[collection_address][token_id].collateral_amount = _input;
-        } else if (_parameter == PARAMETER.BLOCKFEE) { // 2
+        } else if (_parameter == PARAMETER.BLOCKFEE) { // 3
             rentinfo[collection_address][token_id].rent_fee_per_block = _input;
         }
 

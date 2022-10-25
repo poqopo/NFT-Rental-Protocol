@@ -19,7 +19,7 @@ contract MyToken721 is ERC721, Ownable {
     override
     returns (string memory)
   {
-    return "https://bafkreiag7ghw636n5rzf7kefwrga36y7upf6cgegqgbs3sqq3ei5vjxpdq.ipfs.nftstorage.link";
+    return "https://poqopotest.s3.us-west-2.amazonaws.com/rentropy.json";
   }
 
     function safeMint() public onlyOwner {

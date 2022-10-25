@@ -34,22 +34,24 @@ async function main() {
 
 
 
-//       setInterval(async () => {
-//     if ((await rent.viewRentinfo(nft.address, 0)).lender_address == '0x0000000000000000000000000000000000000000')  {
-//         await rent.connect(lender).NFTlist(nft.address, 0, token.address, 1000, 0, 0);
-//         console.log("Listed!")
+      setInterval(async () => {
+    if ((await rent.viewRentinfo(nft.address, 0)).lender_address == '0x0000000000000000000000000000000000000000')  {
+        await rent.connect(lender).NFTlist(nft.address, 0, token.address, 1000, 0, 0);
+        console.log("Listed!")
 
-//     } else if ((await rent.viewRentinfo(nft.address, 0)).renter_address == '0x0000000000000000000000000000000000000000')  {
-//         await rent.connect(renter).rent(nft.address, 0, 50);
-//         console.log("Rented!")
+    } else if ((await rent.viewRentinfo(nft.address, 0)).renter_address == '0x0000000000000000000000000000000000000000')  {
+        await rent.connect(renter).rent(nft.address, 0, 50);
+        console.log("Rented!")
 
-//     } else {
-//         await rent.connect(renter).returnNFT(nft.address, 0);
-//         console.log("Returned!")
-//     }
-//   }, "5000")
+    } else {
+        await rent.connect(renter).returnNFT(nft.address, 0);
+        console.log("Returned!")
+    }
+  }, "5000")
 
     //   console.log(await rent.viewRentinfo(nft.address, 0))
+
+    // await rent.connect(owner).kick(nft.address,0)
 
     //   await rent.connect(renter).modifyList(nft.address, 0, 0, token.address);
     //   console.log("Modified!!")
@@ -57,8 +59,8 @@ async function main() {
     // await token.mint(renter.address, 10)
     // await nft.connect(lender).setApprovalForAll(rent.address, true)
 
-    console.log(await nft.tokenURI(0))
-  
+    // await nft.connect(renter).transferFrom(renter.address, lender.address, 0)
+
 }
 
 main();
