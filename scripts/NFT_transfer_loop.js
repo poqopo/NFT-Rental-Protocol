@@ -16,16 +16,16 @@ async function main() {
 //   }, "5000")
 
 
-      setInterval(async () => {
-    if ((await nft.ownerOf(0)) == lender.address)  {
-        await nft.connect(lender).transferFrom(lender.address, renter.address, 0);
-        console.log("Transfer lender to renter!")
+  //     setInterval(async () => {
+  //   if ((await nft.ownerOf(0)) == lender.address)  {
+  //       await nft.connect(lender).transferFrom(lender.address, renter.address, 0);
+  //       console.log("Transfer lender to renter!")
 
-    } else {
-        await nft.connect(renter).transferFrom(renter.address, lender.address, 0);
-        console.log("Transfer renter to lender!")
-    }
-  }, "3000")
+  //   } else {
+  //       await nft.connect(renter).transferFrom(renter.address, lender.address, 0);
+  //       console.log("Transfer renter to lender!")
+  //   }
+  // }, "3000")
 
   setInterval(async () => {
     if ((await nft.ownerOf(1)) == lender.address)  {

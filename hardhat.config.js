@@ -44,7 +44,7 @@ module.exports = {
     baobab: {
       url: "https://kaikas.baobab.klaytn.net:8651",
       chainId: 1001,
-      accounts: [process.env.PRIVATE_KEY1, process.env.PRIVATE_KEY2, process.env.PRIVATE_KEY3],
+      accounts: [process.env.PRIVATE_KEY1, process.env.PRIVATE_KEY2, process.env.PRIVATE_KEY3, process.env.PRIVATE_KEY4],
       gas: 20000000,
       gasPrice: 250000000000,
       live: true,
