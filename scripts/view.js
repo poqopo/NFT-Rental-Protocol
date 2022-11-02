@@ -13,7 +13,6 @@ async function main() {
 
 
 console.log( await rent.connect(lender).viewRentinfo(nft.address, 7))
-console.log( await rent.connect(lender).viewExcutiondelay())
 
 }
 
